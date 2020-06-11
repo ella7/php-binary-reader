@@ -9,12 +9,12 @@ use PhpBinaryReader\Endian;
 class Int32 implements TypeInterface
 {
     /**
-     * @var string
+     * @var Str
      */
     private $endianBig = 'N';
 
     /**
-     * @var string
+     * @var Str
      */
     private $endianLittle = 'V';
 
@@ -91,7 +91,7 @@ class Int32 implements TypeInterface
     }
 
     /**
-     * @param string $endianBig
+     * @param Str $endianBig
      */
     public function setEndianBig($endianBig)
     {
@@ -99,7 +99,7 @@ class Int32 implements TypeInterface
     }
 
     /**
-     * @return string
+     * @return Str
      */
     public function getEndianBig()
     {
@@ -107,7 +107,7 @@ class Int32 implements TypeInterface
     }
 
     /**
-     * @param string $endianLittle
+     * @param Str $endianLittle
      */
     public function setEndianLittle($endianLittle)
     {
@@ -115,7 +115,7 @@ class Int32 implements TypeInterface
     }
 
     /**
-     * @return string
+     * @return Str
      */
     public function getEndianLittle()
     {

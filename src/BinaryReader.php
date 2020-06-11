@@ -8,7 +8,7 @@ use PhpBinaryReader\Type\Byte;
 use PhpBinaryReader\Type\Int8;
 use PhpBinaryReader\Type\Int16;
 use PhpBinaryReader\Type\Int32;
-use PhpBinaryReader\Type\String;
+use PhpBinaryReader\Type\Str;
 
 class BinaryReader
 {
@@ -18,7 +18,7 @@ class BinaryReader
     private $machineByteOrder = Endian::ENDIAN_LITTLE;
 
     /**
-     * @var string
+     * @var Str
      */
     private $inputString;
 
@@ -43,7 +43,7 @@ class BinaryReader
     private $eofPosition;
 
     /**
-     * @var string
+     * @var Str
      */
     private $endian;
 
@@ -58,7 +58,7 @@ class BinaryReader
     private $bitReader;
 
     /**
-     * @var \PhpBinaryReader\Type\String
+     * @var \PhpBinaryReader\Type\Str
      */
     private $stringReader;
 
@@ -78,8 +78,8 @@ class BinaryReader
     private $int32Reader;
 
     /**
-     * @param  string                    $str
-     * @param  int|string                $endian
+     * @param  Str                    $str
+     * @param  int|Str                $endian
      * @throws \InvalidArgumentException
      */
     public function __construct($str, $endian = Endian::ENDIAN_LITTLE)
@@ -191,7 +191,7 @@ class BinaryReader
 
     /**
      * @param  int    $length
-     * @return string
+     * @return Str
      */
     public function readString($length)
     {
@@ -200,7 +200,7 @@ class BinaryReader
 
     /**
      * @param  int    $length
-     * @return string
+     * @return Str
      */
     public function readAlignedString($length)
     {
@@ -227,7 +227,7 @@ class BinaryReader
     }
 
     /**
-     * @param  string $inputString
+     * @param  Str $inputString
      * @return $this
      */
     public function setInputString($inputString)
@@ -238,7 +238,7 @@ class BinaryReader
     }
 
     /**
-     * @return string
+     * @return Str
      */
     public function getInputString()
     {
@@ -292,7 +292,7 @@ class BinaryReader
     }
 
     /**
-     * @param  string               $endian
+     * @param  Str               $endian
      * @return $this
      * @throws InvalidDataException
      */
@@ -310,7 +310,7 @@ class BinaryReader
     }
 
     /**
-     * @return string
+     * @return Str
      */
     public function getEndian()
     {
@@ -397,12 +397,12 @@ class BinaryReader
     }
 
     /**
-     * @return \PhpBinaryReader\Type\String
+     * @return \PhpBinaryReader\Type\Str
      */
     public function getStringReader()
     {
-        if (!$this->stringReader instanceof String) {
-            $this->stringReader = new String();
+        if (!$this->stringReader instanceof Str) {
+            $this->stringReader = new Str();
         }
 
         return $this->stringReader;

@@ -12,7 +12,7 @@ class Byte implements TypeInterface
      *
      * @param  \PhpBinaryReader\BinaryReader $br
      * @param  int|null                      $length
-     * @return string
+     * @return Str
      * @throws \OutOfBoundsException
      * @throws InvalidDataException
      */

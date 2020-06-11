@@ -5,12 +5,12 @@ namespace PhpBinaryReader\Type;
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Exception\InvalidDataException;
 
-class String implements TypeInterface
+class Str implements TypeInterface
 {
     /**
      * @param  \PhpBinaryReader\BinaryReader $br
      * @param  int                           $length
-     * @return string
+     * @return Str
      * @throws \OutOfBoundsException
      * @throws InvalidDataException
      */
@@ -33,7 +33,7 @@ class String implements TypeInterface
     /**
      * @param  \PhpBinaryReader\BinaryReader $br
      * @param  int                           $length
-     * @return string
+     * @return Str
      */
     public function readAligned(BinaryReader &$br, $length)
     {

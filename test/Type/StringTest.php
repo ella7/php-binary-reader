@@ -6,7 +6,7 @@ use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Endian;
 
 /**
- * @coversDefaultClass \PhpBinaryReader\Type\String
+ * @coversDefaultClass \PhpBinaryReader\Type\Str
  */
 class StringTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,7 +21,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
     public $brLittle;
 
     /**
-     * @var String
+     * @var Str
      */
     public $string;
 
@@ -30,7 +30,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
         $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
         $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
 
-        $this->string = new String();
+        $this->string = new Str();
         $this->brBig = new BinaryReader($dataBig, Endian::ENDIAN_BIG);
         $this->brLittle = new BinaryReader($dataLittle, Endian::ENDIAN_LITTLE);
     }

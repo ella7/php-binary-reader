@@ -9,7 +9,7 @@ use PhpBinaryReader\Endian;
 class Int8 implements TypeInterface
 {
     /**
-     * @var string
+     * @var Str
      */
     private $endian = 'C';
 
@@ -74,7 +74,7 @@ class Int8 implements TypeInterface
     }
 
     /**
-     * @param string $endian
+     * @param Str $endian
      */
     public function setEndian($endian)
     {
@@ -82,7 +82,7 @@ class Int8 implements TypeInterface
     }
 
     /**
-     * @return string
+     * @return Str
      */
     public function getEndian()
     {
