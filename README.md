@@ -21,7 +21,7 @@ you may not be able to properly read signed integers in the file you're parsing.
 ```
 $fileData = file_get_contents('somefile.bin');
 $br = new BinaryReader($fileData);
-$br->setMachineByteOrder(Endian::ENDIAN_BIG);
+$br->setMachineByteOrder(Endian::BIG);
 ...
 ```
 
@@ -29,7 +29,7 @@ Example Usage
 ---
 ```
 $fileData = file_get_contents('somefile.bin');
-$br = new BinaryReader($fileData, Endian::ENDIAN_LITTLE);
+$br = new BinaryReader($fileData, Endian::LITTLE);
 $magic = $br->readUInt32();
 $offset = $br->readUInt16();
 $length = $br->readUInt16();
@@ -38,7 +38,7 @@ $length = $br->readUInt16();
 
 Methods
 ---
-**__construct($str, $endian)** a string must be provided to use this class, an endian is optional (string [big|little], or use the constants in the Endian class), it will default to little if not provided.
+**__construct($str, $endian)** a string must be provided to use this class, an endian is optional (use the constants in the Endian class), it will default to little if not provided.
 
 **readUInt8()** returns a single 8 bit byte as an unsigned integer
 
