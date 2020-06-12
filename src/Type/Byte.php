@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
@@ -7,16 +8,7 @@ use PhpBinaryReader\Exception\InvalidDataException;
 
 class Byte implements TypeInterface
 {
-    /**
-     * Returns an variable number of bytes
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int|null                      $length
-     * @return Str
-     * @throws \OutOfBoundsException
-     * @throws InvalidDataException
-     */
-    public function read(BinaryReader &$br, $length = null)
+    public function read(BinaryReader &$br, int $length = null): string
     {
         if (!is_int($length)) {
             throw new InvalidDataException('The length parameter must be an integer');

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader;
 
@@ -12,78 +13,32 @@ use PhpBinaryReader\Type\Str;
 
 class BinaryReader
 {
-    /**
-     * @var int
-     */
-    private $machineByteOrder = Endian::ENDIAN_LITTLE;
+    private int $machineByteOrder = Endian::LITTLE;
+    private string $inputString;
+    private int $currentBit;
 
-    /**
-     * @var Str
-     */
-    private $inputString;
-
-    /**
-     * @var int
-     */
-    private $currentBit;
-
-    /**
-     * @var mixed
-     */
     private $nextByte;
 
-    /**
-     * @var int
-     */
-    private $position;
+    private int $position;
+    private int $eofPosition;
+    private int $endian;
 
-    /**
-     * @var int
-     */
-    private $eofPosition;
+    public Byte $byteReader;
+    public Bit $bitReader;
+    public Str $stringReader;
+    public Int8 $int8Reader;
+    public Int16 $int16Reader;
+    public Int32 $int32Reader;
 
-    /**
-     * @var Str
-     */
-    private $endian;
-
-    /**
-     * @var \PhpBinaryReader\Type\Byte
-     */
-    private $byteReader;
-
-    /**
-     * @var \PhpBinaryReader\Type\Bit
-     */
-    private $bitReader;
-
-    /**
-     * @var \PhpBinaryReader\Type\Str
-     */
-    private $stringReader;
-
-    /**
-     * @var \PhpBinaryReader\Type\Int8
-     */
-    private $int8Reader;
-
-    /**
-     * @var \PhpBinaryReader\Type\Int16
-     */
-    private $int16Reader;
-
-    /**
-     * @var \PhpBinaryReader\Type\Int32
-     */
-    private $int32Reader;
-
-    /**
-     * @param  Str                    $str
-     * @param  int|Str                $endian
-     * @throws \InvalidArgumentException
-     */
-    public function __construct($str, $endian = Endian::ENDIAN_LITTLE)
+    public function __construct(string $str, $endian = Endian::LITTLE)
     {
+        $this->bitReader = new Bit();
+        $this->byteReader = new Byte();
+        $this->stringReader = new Str();
+        $this->int8Reader = new Int8();
+        $this->int16Reader = new Int16();
+        $this->int32Reader = new Int32();
+
         $this->eofPosition = strlen($str);
 
         $this->setEndian($endian);
@@ -93,215 +48,134 @@ class BinaryReader
         $this->setPosition(0);
     }
 
-    /**
-     * @return bool
-     */
-    public function isEof()
+    public function isEof(): bool
     {
         if ($this->getPosition() >= $this->getEofPosition()) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    /**
-     * @return void
-     */
-    public function align()
+    public function align(): void
     {
         $this->setCurrentBit(0);
         $this->setNextByte(false);
     }
 
-    /**
-     * @param  int $count
-     * @return int
-     */
-    public function readBits($count)
+    public function readBits(int $count): int
     {
-        return $this->getBitReader()->readSigned($this, $count);
+        return $this->bitReader->readSigned($this, $count);
     }
 
-    /**
-     * @param  int $count
-     * @return int
-     */
-    public function readUBits($count)
+    public function readUBits(int $count): int
     {
-        return $this->getBitReader()->read($this, $count);
+        return $this->bitReader->read($this, $count);
     }
 
-    /**
-     * @param  int $count
-     * @return int
-     */
-    public function readBytes($count)
+    public function readBytes(int $count): string
     {
-        return $this->getByteReader()->read($this, $count);
+        return $this->byteReader->read($this, $count);
     }
 
-    /**
-     * @return int
-     */
-    public function readInt8()
+    public function readInt8(): int
     {
-        return $this->getInt8Reader()->readSigned($this);
+        return $this->int8Reader->readSigned($this);
     }
 
-    /**
-     * @return int
-     */
-    public function readUInt8()
+    public function readUInt8(): int
     {
-        return $this->getInt8Reader()->read($this);
+        return $this->int8Reader->read($this);
     }
 
-    /**
-     * @return int
-     */
-    public function readInt16()
+    public function readInt16(): int
     {
-        return $this->getInt16Reader()->readSigned($this);
+        return $this->int16Reader->readSigned($this);
     }
 
-    /**
-     * @return string
-     */
-    public function readUInt16()
+    public function readUInt16(): int
     {
-        return $this->getInt16Reader()->read($this);
+        return $this->int16Reader->read($this);
     }
 
-    /**
-     * @return int
-     */
-    public function readInt32()
+    public function readInt32(): int
     {
-        return $this->getInt32Reader()->readSigned($this);
+        return $this->int32Reader->readSigned($this);
     }
 
-    /**
-     * @return int
-     */
-    public function readUInt32()
+    public function readUInt32(): int
     {
-        return $this->getInt32Reader()->read($this);
+        return $this->int32Reader->read($this);
     }
 
-    /**
-     * @param  int    $length
-     * @return Str
-     */
-    public function readString($length)
+    public function readString(int $length): string
     {
-        return $this->getStringReader()->read($this, $length);
+        return $this->stringReader->read($this, $length);
     }
 
-    /**
-     * @param  int    $length
-     * @return Str
-     */
-    public function readAlignedString($length)
+    public function readAlignedString(int $length): string
     {
-        return $this->getStringReader()->readAligned($this, $length);
+        return $this->stringReader->readAligned($this, $length);
     }
 
-    /**
-     * @param  int   $machineByteOrder
-     * @return $this
-     */
-    public function setMachineByteOrder($machineByteOrder)
+    public function setMachineByteOrder(int $machineByteOrder): self
     {
         $this->machineByteOrder = $machineByteOrder;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getMachineByteOrder()
+    public function getMachineByteOrder(): int
     {
         return $this->machineByteOrder;
     }
 
-    /**
-     * @param  Str $inputString
-     * @return $this
-     */
-    public function setInputString($inputString)
+    public function setInputString(string $inputString): self
     {
         $this->inputString = $inputString;
 
         return $this;
     }
 
-    /**
-     * @return Str
-     */
-    public function getInputString()
+    public function getInputString(): string
     {
         return $this->inputString;
     }
 
-    /**
-     * @param  mixed $nextByte
-     * @return $this
-     */
-    public function setNextByte($nextByte)
+    public function setNextByte($nextByte): self
     {
         $this->nextByte = $nextByte;
 
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getNextByte()
     {
         return $this->nextByte;
     }
 
-    /**
-     * @param  int   $position
-     * @return $this
-     */
-    public function setPosition($position)
+    public function setPosition(int $position): self
     {
         $this->position = $position;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getPosition()
+    public function getPosition(): int
     {
         return $this->position;
     }
 
-    /**
-     * @return int
-     */
-    public function getEofPosition()
+    public function getEofPosition(): int
     {
         return $this->eofPosition;
     }
 
-    /**
-     * @param  Str               $endian
-     * @return $this
-     * @throws InvalidDataException
-     */
-    public function setEndian($endian)
+    public function setEndian(int $endian): self
     {
-        if ($endian == 'big' || $endian == Endian::ENDIAN_BIG) {
-            $this->endian = Endian::ENDIAN_BIG;
-        } elseif ($endian == 'little' || $endian == Endian::ENDIAN_LITTLE) {
-            $this->endian = Endian::ENDIAN_LITTLE;
+        if ($endian == Endian::BIG) {
+            $this->endian = Endian::BIG;
+        } elseif ($endian == Endian::LITTLE) {
+            $this->endian = Endian::LITTLE;
         } else {
             throw new InvalidDataException('Endian must be set as big or little');
         }
@@ -309,102 +183,20 @@ class BinaryReader
         return $this;
     }
 
-    /**
-     * @return Str
-     */
-    public function getEndian()
+    public function getEndian(): int
     {
         return $this->endian;
     }
 
-    /**
-     * @param  int   $currentBit
-     * @return $this
-     */
-    public function setCurrentBit($currentBit)
+    public function setCurrentBit(int $currentBit): self
     {
         $this->currentBit = $currentBit;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getCurrentBit()
+    public function getCurrentBit(): int
     {
         return $this->currentBit;
-    }
-
-    /**
-     * @return \PhpBinaryReader\Type\Bit
-     */
-    public function getBitReader()
-    {
-        if (!$this->bitReader instanceof Bit) {
-            $this->bitReader = new Bit();
-        }
-
-        return $this->bitReader;
-    }
-
-    /**
-     * @return \PhpBinaryReader\Type\Byte
-     */
-    public function getByteReader()
-    {
-        if (!$this->byteReader instanceof Byte) {
-            $this->byteReader = new Byte();
-        }
-
-        return $this->byteReader;
-    }
-
-    /**
-     * @return \PhpBinaryReader\Type\Int8
-     */
-    public function getInt8Reader()
-    {
-        if (!$this->int8Reader instanceof Int8) {
-            $this->int8Reader = new Int8();
-        }
-
-        return $this->int8Reader;
-    }
-
-    /**
-     * @return \PhpBinaryReader\Type\Int16
-     */
-    public function getInt16Reader()
-    {
-        if (!$this->int16Reader instanceof Int16) {
-            $this->int16Reader = new Int16();
-        }
-
-        return $this->int16Reader;
-    }
-
-    /**
-     * @return \PhpBinaryReader\Type\Int32
-     */
-    public function getInt32Reader()
-    {
-        if (!$this->int32Reader instanceof Int32) {
-            $this->int32Reader = new Int32();
-        }
-
-        return $this->int32Reader;
-    }
-
-    /**
-     * @return \PhpBinaryReader\Type\Str
-     */
-    public function getStringReader()
-    {
-        if (!$this->stringReader instanceof Str) {
-            $this->stringReader = new Str();
-        }
-
-        return $this->stringReader;
     }
 }

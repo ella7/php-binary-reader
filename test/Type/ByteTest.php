@@ -1,41 +1,32 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Endian;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Byte
  */
-class ByteTest extends \PHPUnit_Framework_TestCase
+class ByteTest extends TestCase
 {
-    /**
-     * @var BinaryReader
-     */
-    public $brBig;
+    public BinaryReader $brBig;
+    public BinaryReader $brLittle;
+    public Byte $byte;
 
-    /**
-     * @var BinaryReader
-     */
-    public $brLittle;
-
-    /**
-     * @var Byte
-     */
-    public $byte;
-
-    public function setUp()
+    public function setUp(): void
     {
         $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
         $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
 
         $this->byte = new Byte();
-        $this->brBig = new BinaryReader($dataBig, Endian::ENDIAN_BIG);
-        $this->brLittle = new BinaryReader($dataLittle, Endian::ENDIAN_LITTLE);
+        $this->brBig = new BinaryReader($dataBig, Endian::BIG);
+        $this->brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
     }
 
-    public function testBytesAreRead()
+    public function testBytesAreRead(): void
     {
         $this->brBig->setPosition(7);
         $this->brLittle->setPosition(7);
@@ -44,37 +35,19 @@ class ByteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test!', $this->byte->read($this->brLittle, 5));
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
-    public function testExceptionIsThrownIfOutOfBoundsBigEndian()
+    public function testExceptionIsThrownIfOutOfBoundsBigEndian(): void
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $this->brBig->readBits(128);
         $this->byte->read($this->brBig, 1);
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
-    public function testExceptionIsThrownIfOutOfBoundsLittleEndian()
+    public function testExceptionIsThrownIfOutOfBoundsLittleEndian(): void
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $this->brLittle->readBits(128);
         $this->byte->read($this->brLittle, 1);
-    }
-
-    /**
-     * @expectedException \PhpBinaryReader\Exception\InvalidDataException
-     */
-    public function testExceptionIsThrownIfLengthIsInvalidBigEndian()
-    {
-        $this->byte->read($this->brBig, 'foo');
-    }
-
-    /**
-     * @expectedException \PhpBinaryReader\Exception\InvalidDataException
-     */
-    public function testExceptionIsThrownIfLengthIsInvalidLittleEndian()
-    {
-        $this->byte->read($this->brBig, 'foo');
     }
 }

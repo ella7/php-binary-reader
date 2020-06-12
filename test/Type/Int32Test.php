@@ -1,41 +1,32 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Endian;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Int32
  */
-class Int32Test extends \PHPUnit_Framework_TestCase
+class Int32Test extends TestCase
 {
-    /**
-     * @var BinaryReader
-     */
-    public $brBig;
+    public BinaryReader $brBig;
+    public BinaryReader $brLittle;
+    public Int32 $int32;
 
-    /**
-     * @var BinaryReader
-     */
-    public $brLittle;
-
-    /**
-     * @var Int32
-     */
-    public $int32;
-
-    public function setUp()
+    public function setUp(): void
     {
         $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
         $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
 
         $this->int32 = new Int32();
-        $this->brBig = new BinaryReader($dataBig, Endian::ENDIAN_BIG);
-        $this->brLittle = new BinaryReader($dataLittle, Endian::ENDIAN_LITTLE);
+        $this->brBig = new BinaryReader($dataBig, Endian::BIG);
+        $this->brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
     }
 
-    public function testUnsignedReaderWithBigEndian()
+    public function testUnsignedReaderWithBigEndian(): void
     {
         $this->assertEquals(3, $this->int32->read($this->brBig));
         $this->assertEquals(157556, $this->int32->read($this->brBig));
@@ -43,13 +34,13 @@ class Int32Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4294967295, $this->int32->read($this->brBig));
     }
 
-    public function testSignedReaderWithBigEndian()
+    public function testSignedReaderWithBigEndian(): void
     {
         $this->brBig->setPosition(12);
         $this->assertEquals(-1, $this->int32->readSigned($this->brBig));
     }
 
-    public function testReaderWithLittleEndian()
+    public function testReaderWithLittleEndian(): void
     {
         $this->assertEquals(3, $this->int32->read($this->brLittle));
         $this->assertEquals(1952907266, $this->int32->read($this->brLittle));
@@ -57,48 +48,46 @@ class Int32Test extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4294967295, $this->int32->read($this->brLittle));
     }
 
-    public function testSignedReaderWithLittleEndian()
+    public function testSignedReaderWithLittleEndian(): void
     {
         $this->brLittle->setPosition(12);
         $this->assertEquals(-1, $this->int32->readSigned($this->brLittle));
     }
 
-    public function testBitReaderWithBigEndian()
+    public function testBitReaderWithBigEndian(): void
     {
         $this->brBig->setPosition(6);
         $this->brBig->readBits(4);
         $this->assertEquals(122050356, $this->int32->read($this->brBig));
     }
 
-    public function testBitReaderWithLittleEndian()
+    public function testBitReaderWithLittleEndian(): void
     {
         $this->brLittle->setPosition(6);
         $this->brLittle->readBits(4);
         $this->assertEquals(122107476, $this->int32->read($this->brLittle));
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
-    public function testOutOfBoundsExceptionIsThrownWithBigEndian()
+    public function testOutOfBoundsExceptionIsThrownWithBigEndian(): void
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $this->brBig->readBits(128);
         $this->int32->read($this->brBig);
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
-    public function testOutOfBoundsExceptionIsThrownWithLittleEndian()
+    public function testOutOfBoundsExceptionIsThrownWithLittleEndian(): void
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $this->brLittle->readBits(128);
         $this->int32->read($this->brLittle);
     }
 
-    public function testAlternateMachineByteOrderSigned()
+    public function testAlternateMachineByteOrderSigned(): void
     {
-        $this->brLittle->setMachineByteOrder(Endian::ENDIAN_BIG);
-        $this->brLittle->setEndian(Endian::ENDIAN_LITTLE);
+        $this->brLittle->setMachineByteOrder(Endian::BIG);
+        $this->brLittle->setEndian(Endian::LITTLE);
         $this->assertEquals(3, $this->int32->readSigned($this->brLittle));
     }
 }

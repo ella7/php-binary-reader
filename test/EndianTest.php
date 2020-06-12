@@ -1,16 +1,19 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader;
+
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Endian
  */
-class EndianTest extends \PHPUnit_Framework_TestCase
+class EndianTest extends TestCase
 {
     public function testConstants()
     {
-        $this->assertEquals(1, Endian::ENDIAN_BIG);
-        $this->assertEquals(2, Endian::ENDIAN_LITTLE);
+        $this->assertEquals(1, Endian::BIG);
+        $this->assertEquals(2, Endian::LITTLE);
         $this->assertEquals(1, Endian::BIG);
         $this->assertEquals(2, Endian::LITTLE);
     }

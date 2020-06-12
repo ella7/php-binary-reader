@@ -1,27 +1,16 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\BitMask;
-use PhpBinaryReader\Endian;
 
 class Int8 implements TypeInterface
 {
-    /**
-     * @var Str
-     */
-    private $endian = 'C';
+    private string $endian = 'C';
 
-    /**
-     * Returns an Unsigned 8-bit Integer (aka a single byte)
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  null                          $length
-     * @return int
-     * @throws \OutOfBoundsException
-     */
-    public function read(BinaryReader &$br, $length = null)
+    public function read(BinaryReader &$br, int $length = null): int
     {
         if (($br->getPosition() + 1) > $br->getEofPosition()) {
             throw new \OutOfBoundsException('Cannot read 32-bit int, it exceeds the boundary of the file');
@@ -41,13 +30,7 @@ class Int8 implements TypeInterface
         return $data;
     }
 
-    /**
-     * Returns a Signed 8-bit Integer (aka a single byte)
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @return int
-     */
-    public function readSigned(&$br)
+    public function readSigned(BinaryReader &$br): int
     {
         $this->setEndian('c');
         $value = $this->read($br);
@@ -56,12 +39,7 @@ class Int8 implements TypeInterface
         return $value;
     }
 
-    /**
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int                           $data
-     * @return int
-     */
-    private function bitReader(&$br, $data)
+    private function bitReader(BinaryReader &$br, int $data): int
     {
         $bitmask = new BitMask();
         $loMask = $bitmask->getMask($br->getCurrentBit(), BitMask::MASK_LO);
@@ -73,18 +51,12 @@ class Int8 implements TypeInterface
         return $hiBits | $loBits;
     }
 
-    /**
-     * @param Str $endian
-     */
-    public function setEndian($endian)
+    public function setEndian(string $endian): void
     {
         $this->endian = $endian;
     }
 
-    /**
-     * @return Str
-     */
-    public function getEndian()
+    public function getEndian(): string
     {
         return $this->endian;
     }

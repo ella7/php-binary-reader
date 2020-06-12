@@ -1,35 +1,30 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Endian;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Bit
  */
-class BitTest extends \PHPUnit_Framework_TestCase
+class BitTest extends TestCase
 {
-    /**
-     * @var BinaryReader
-     */
-    public $brBig;
+    public BinaryReader $brBig;
+    public BinaryReader $brLittle;
 
-    /**
-     * @var BinaryReader
-     */
-    public $brLittle;
-
-    public function setUp()
+    public function setUp(): void
     {
         $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
         $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
 
-        $this->brBig = new BinaryReader($dataBig, Endian::ENDIAN_BIG);
-        $this->brLittle = new BinaryReader($dataLittle, Endian::ENDIAN_LITTLE);
+        $this->brBig = new BinaryReader($dataBig, Endian::BIG);
+        $this->brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
     }
 
-    public function testUnsignedBitReader()
+    public function testUnsignedBitReader(): void
     {
         $this->assertEquals(3, $this->brBig->readUBits(32));
         $this->assertEquals(3, $this->brLittle->readUBits(32));
@@ -52,7 +47,7 @@ class BitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $this->brLittle->readUBits(2));
     }
 
-    public function testSignedBitReader()
+    public function testSignedBitReader(): void
     {
         $this->assertEquals(50331648, $this->brBig->readBits(32));
         $this->assertEquals(3, $this->brLittle->readBits(32));
@@ -75,37 +70,18 @@ class BitTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $this->brLittle->readBits(2));
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
-    public function testExceptionBitsBigEndian()
+    public function testExceptionBitsBigEndian(): void
     {
+        $this->expectException(\OutOfBoundsException::class);
         $this->brBig->setPosition(16);
         $this->brBig->readBits(16);
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
-    public function testExceptionBitsLittleEndian()
+    public function testExceptionBitsLittleEndian(): void
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $this->brLittle->setPosition(16);
         $this->brLittle->readBits(16);
-    }
-
-    /**
-     * @expectedException \PhpBinaryReader\Exception\InvalidDataException
-     */
-    public function testExceptionInvalidBitCountBigEndian()
-    {
-        $this->brBig->readBits('foo');
-    }
-
-    /**
-     * @expectedException \PhpBinaryReader\Exception\InvalidDataException
-     */
-    public function testExceptionInvalidBitCountLittleEndian()
-    {
-        $this->brLittle->readBits('foo');
     }
 }

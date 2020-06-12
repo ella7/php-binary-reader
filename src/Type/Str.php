@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
@@ -7,16 +8,9 @@ use PhpBinaryReader\Exception\InvalidDataException;
 
 class Str implements TypeInterface
 {
-    /**
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int                           $length
-     * @return Str
-     * @throws \OutOfBoundsException
-     * @throws InvalidDataException
-     */
-    public function read(BinaryReader &$br, $length)
+    public function read(BinaryReader &$br, int $length = null): string
     {
-        if (!is_int($length)) {
+        if (empty($length)) {
             throw new InvalidDataException('The length parameter must be an integer');
         }
 
@@ -30,12 +24,7 @@ class Str implements TypeInterface
         return $str;
     }
 
-    /**
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int                           $length
-     * @return Str
-     */
-    public function readAligned(BinaryReader &$br, $length)
+    public function readAligned(BinaryReader &$br, int $length): string
     {
         $br->align();
 

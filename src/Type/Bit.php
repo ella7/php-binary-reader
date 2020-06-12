@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
@@ -8,21 +9,9 @@ use PhpBinaryReader\Exception\InvalidDataException;
 
 class Bit implements TypeInterface
 {
-    /**
-     * @var bool
-     */
-    private $signed = false;
+    private bool $signed = false;
 
-    /**
-     * Returns an unsigned integer from the bit level
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int                           $length
-     * @throws \OutOfBoundsException
-     * @throws InvalidDataException
-     * @return int
-     */
-    public function read(BinaryReader &$br, $length)
+    public function read(BinaryReader &$br, ?int $length): int
     {
         if (!is_int($length)) {
             throw new InvalidDataException('The length parameter must be an integer');
@@ -87,14 +76,7 @@ class Bit implements TypeInterface
         return $result;
     }
 
-    /**
-     * Returns a signed integer from the bit level
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int                           $length
-     * @return int
-     */
-    public function readSigned(&$br, $length)
+    public function readSigned(BinaryReader $br, int $length): int
     {
         $this->setSigned(true);
         $value = $this->read($br, $length);
@@ -103,18 +85,12 @@ class Bit implements TypeInterface
         return $value;
     }
 
-    /**
-     * @param boolean $signed
-     */
-    public function setSigned($signed)
+    public function setSigned(bool $signed): void
     {
         $this->signed = $signed;
     }
 
-    /**
-     * @return boolean
-     */
-    public function getSigned()
+    public function getSigned(): bool
     {
         return $this->signed;
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
@@ -8,31 +9,16 @@ use PhpBinaryReader\Endian;
 
 class Int32 implements TypeInterface
 {
-    /**
-     * @var Str
-     */
-    private $endianBig = 'N';
+    private string $endianBig = 'N';
+    private string $endianLittle = 'V';
 
-    /**
-     * @var Str
-     */
-    private $endianLittle = 'V';
-
-    /**
-     * Returns an Unsigned 32-bit Integer
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  null                          $length
-     * @return int
-     * @throws \OutOfBoundsException
-     */
-    public function read(BinaryReader &$br, $length = null)
+    public function read(BinaryReader &$br, int $length = null): int
     {
         if (($br->getPosition() + 4) > $br->getEofPosition()) {
             throw new \OutOfBoundsException('Cannot read 32-bit int, it exceeds the boundary of the file');
         }
 
-        $endian = $br->getEndian() == Endian::ENDIAN_BIG ? $this->getEndianBig() : $this->getEndianLittle();
+        $endian = $br->getEndian() == Endian::BIG ? $this->getEndianBig() : $this->getEndianLittle();
         $segment = substr($br->getInputString(), $br->getPosition(), 4);
 
         $data = unpack($endian, $segment);
@@ -47,13 +33,7 @@ class Int32 implements TypeInterface
         return $data;
     }
 
-    /**
-     * Returns a Signed 32-Bit Integer
-     *
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @return int
-     */
-    public function readSigned(&$br)
+    public function readSigned(BinaryReader &$br): int
     {
         $this->setEndianBig('l');
         $this->setEndianLittle('l');
@@ -63,7 +43,7 @@ class Int32 implements TypeInterface
         $this->setEndianBig('N');
         $this->setEndianLittle('V');
 
-        if ($br->getMachineByteOrder() != Endian::ENDIAN_LITTLE && $br->getEndian() == Endian::ENDIAN_LITTLE) {
+        if ($br->getMachineByteOrder() != Endian::LITTLE && $br->getEndian() == Endian::LITTLE) {
             $endian = new Endian();
 
             return $endian->convert($value);
@@ -72,12 +52,7 @@ class Int32 implements TypeInterface
         }
     }
 
-    /**
-     * @param  \PhpBinaryReader\BinaryReader $br
-     * @param  int                           $data
-     * @return int
-     */
-    private function bitReader(&$br, $data)
+    private function bitReader(BinaryReader &$br, int $data): int
     {
         $bitmask = new BitMask();
         $loMask = $bitmask->getMask($br->getCurrentBit(), BitMask::MASK_LO);
@@ -90,34 +65,22 @@ class Int32 implements TypeInterface
         return $hiBits | $miBits | $loBits;
     }
 
-    /**
-     * @param Str $endianBig
-     */
-    public function setEndianBig($endianBig)
+    public function setEndianBig(string $endianBig): void
     {
         $this->endianBig = $endianBig;
     }
 
-    /**
-     * @return Str
-     */
-    public function getEndianBig()
+    public function getEndianBig(): string
     {
         return $this->endianBig;
     }
 
-    /**
-     * @param Str $endianLittle
-     */
-    public function setEndianLittle($endianLittle)
+    public function setEndianLittle(string $endianLittle): void
     {
         $this->endianLittle = $endianLittle;
     }
 
-    /**
-     * @return Str
-     */
-    public function getEndianLittle()
+    public function getEndianLittle(): string
     {
         return $this->endianLittle;
     }

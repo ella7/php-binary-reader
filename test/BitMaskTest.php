@@ -1,13 +1,17 @@
 <?php
+declare(strict_types = 1);
 
 namespace PhpBinaryReader;
+
+use PhpBinaryReader\Exception\InvalidDataException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\BitMask
  */
-class BitMaskTest extends \PHPUnit_Framework_TestCase
+class BitMaskTest extends TestCase
 {
-    public function testBitMaskArray()
+    public function testBitMaskArray(): void
     {
         $expected = [
             [0x00, 0xFF],
@@ -25,25 +29,23 @@ class BitMaskTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $bitmask->getBitMasks());
     }
 
-    public function testLoMaskIsReturnedByBit()
+    public function testLoMaskIsReturnedByBit(): void
     {
         $bitmask = new Bitmask();
         $this->assertEquals(0x03, $bitmask->getMask(2, BitMask::MASK_LO));
         $this->assertEquals(0xFF, $bitmask->getMask(8, BitMask::MASK_LO));
     }
 
-    public function testHiMaskIsReturnedByBit()
+    public function testHiMaskIsReturnedByBit(): void
     {
         $bitmask = new Bitmask();
         $this->assertEquals(0x03, $bitmask->getMask(6, BitMask::MASK_HI));
         $this->assertEquals(0xFF, $bitmask->getMask(0, BitMask::MASK_HI));
     }
 
-    /**
-     * @expectedException \PhpBinaryReader\Exception\InvalidDataException
-     */
-    public function testExceptionIsThrownIfMaskTypeIsUnsupported()
+    public function testExceptionIsThrownIfMaskTypeIsUnsupported(): void
     {
+        $this->expectException(InvalidDataException::class);
         $bitmask = new Bitmask();
         $bitmask->getMask(5, 5);
     }
