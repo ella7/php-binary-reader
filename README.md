@@ -1,8 +1,12 @@
 PhpBinaryReader
 ===
-[![Build Status](https://travis-ci.org/mdurrant/php-binary-reader.svg)](https://travis-ci.org/mdurrant/php-binary-reader)
-[![Code Coverage](https://scrutinizer-ci.com/g/mdurrant/php-binary-reader/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mdurrant/php-binary-reader/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mdurrant/php-binary-reader/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mdurrant/php-binary-reader/?branch=master)
+![PHP](https://github.com/iBotPeaches/php-binary-reader/workflows/PHP/badge.svg)
+
+Why the fork?
+---
+It started as trying to dive into a bug on why signed 32bit reads were wrong, then I couldn't work on it locally
+due it not being supported to develop on latest (at the time), php 7.4. I got obsessed with adapting to new language
+features and it just kinda didn't stop until I explored GitHub Actions and more.
 
 Why?
 ---
