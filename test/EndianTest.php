@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  */
 class EndianTest extends TestCase
 {
-    public function testConstants()
+    public function testConstants(): void
     {
         $this->assertEquals(1, Endian::BIG);
         $this->assertEquals(2, Endian::LITTLE);
@@ -18,13 +18,13 @@ class EndianTest extends TestCase
         $this->assertEquals(2, Endian::LITTLE);
     }
 
-    public function testConvertDoesNothingIfSingleDigit()
+    public function testConvertDoesNothingIfSingleDigit(): void
     {
         $endian = new Endian();
         $this->assertEquals(9, $endian->Convert(9));
     }
 
-    public function testConvert()
+    public function testConvert(): void
     {
         $endian = new Endian();
         $this->assertEquals(128, $endian->convert(2147483648));
