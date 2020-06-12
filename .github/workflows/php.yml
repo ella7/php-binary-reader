@@ -1,0 +1,32 @@
+name: PHP
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-node-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run code style suite
+        run: ./vendor/bin/phpcs --standard=PSR2 -s -p src/ test/
+
+      - name: Run test suite
+        run: ./vendor/bin/phpunit --coverage-clover=./build/clover.xml
+
+      - name: Run coverage suite
+        run: php coverage.php build/clover.xml 100
