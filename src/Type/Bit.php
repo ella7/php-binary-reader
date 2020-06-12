@@ -13,7 +13,7 @@ class Bit implements TypeInterface
 
     public function read(BinaryReader &$br, ?int $length): int
     {
-        if (!is_int($length)) {
+        if (empty($length)) {
             throw new InvalidDataException('The length parameter must be an integer');
         }
 

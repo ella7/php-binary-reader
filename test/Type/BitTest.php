@@ -5,6 +5,7 @@ namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Endian;
+use PhpBinaryReader\Exception\InvalidDataException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,12 +15,14 @@ class BitTest extends TestCase
 {
     public BinaryReader $brBig;
     public BinaryReader $brLittle;
+    public Bit $bit;
 
     public function setUp(): void
     {
         $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
         $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
 
+        $this->bit = new Bit();
         $this->brBig = new BinaryReader($dataBig, Endian::BIG);
         $this->brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
     }
@@ -83,5 +86,13 @@ class BitTest extends TestCase
 
         $this->brLittle->setPosition(16);
         $this->brLittle->readBits(16);
+    }
+
+    public function testExceptionBitReaderNullRead(): void
+    {
+        $this->expectException(InvalidDataException::class);
+
+        $this->brLittle->setPosition(16);
+        $this->bit->read($this->brLittle, null);
     }
 }
