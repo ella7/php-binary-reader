@@ -276,7 +276,7 @@ class BinaryReaderTest extends AbstractTestCase
         $this->assertEquals(4, $brBig->getPosition());
     }
 
-    public function testReaders(): void
+    public function testReadersAsResource(): void
     {
         $dataBig = fopen(__DIR__ . '/asset/testfile-big.bin', 'rb');
         $brBig = new BinaryReader($dataBig, Endian::BIG);
@@ -288,5 +288,19 @@ class BinaryReaderTest extends AbstractTestCase
         $this->assertInstanceOf('\PhpBinaryReader\Type\Int64', $brBig->int64Reader);
         $this->assertInstanceOf('\PhpBinaryReader\Type\Str', $brBig->stringReader);
         $this->assertInstanceOf('\PhpBinaryReader\Type\Single', $brBig->singleReader);
+    }
+
+    public function testReadersAsString(): void
+    {
+        $dataLittle = file_get_contents(__DIR__ . '/asset/testfile-little.bin');
+        $brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Bit', $brLittle->bitReader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Byte', $brLittle->byteReader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Int8', $brLittle->int8Reader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Int16', $brLittle->int16Reader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Int32', $brLittle->int32Reader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Int64', $brLittle->int64Reader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Str', $brLittle->stringReader);
+        $this->assertInstanceOf('\PhpBinaryReader\Type\Single', $brLittle->singleReader);
     }
 }
