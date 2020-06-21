@@ -5,12 +5,20 @@ namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\AbstractTestCase;
 use PhpBinaryReader\BinaryReader;
+use PhpBinaryReader\Exception\InvalidDataException;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Bit
  */
 class BitTest extends AbstractTestCase
 {
+    public Bit $bit;
+
+    public function setUp(): void
+    {
+        $this->bit = new Bit();
+    }
+
     /** @dataProvider binaryReaders */
     public function testUnsignedBitReader(BinaryReader $brBig, BinaryReader $brLittle): void
     {
@@ -105,5 +113,19 @@ class BitTest extends AbstractTestCase
         $brLittle->readBits(2);
         $brLittle->readBits(2);
         $brLittle->readBits(1);
+    }
+
+    /** @dataProvider littleReaders */
+    public function testExceptionOnReadingNullLengthLittleEndian(BinaryReader $brLittle): void
+    {
+        $this->expectException(InvalidDataException::class);
+        $this->bit->read($brLittle, null);
+    }
+
+    /** @dataProvider largeReaders */
+    public function testExceptionOnReadingNullLengthLargeEndian(BinaryReader $brBig): void
+    {
+        $this->expectException(InvalidDataException::class);
+        $this->bit->read($brBig, null);
     }
 }

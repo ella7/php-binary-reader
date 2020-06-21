@@ -5,6 +5,7 @@ namespace PhpBinaryReader\Type;
 
 use PhpBinaryReader\AbstractTestCase;
 use PhpBinaryReader\BinaryReader;
+use PhpBinaryReader\Exception\InvalidDataException;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Byte
@@ -44,5 +45,23 @@ class ByteTest extends AbstractTestCase
 
         $brLittle->readBits(360);
         $this->byte->read($brLittle, 1);
+    }
+
+    /** @dataProvider largeReaders */
+    public function testExceptionIsThrownIfNullBigEndian(BinaryReader $brBig): void
+    {
+        $this->expectException(InvalidDataException::class);
+
+        $brBig->readBits(360);
+        $this->byte->read($brBig, null);
+    }
+
+    /** @dataProvider littleReaders */
+    public function testExceptionIsThrownIfNullLittleEndian(BinaryReader $brLittle): void
+    {
+        $this->expectException(InvalidDataException::class);
+
+        $brLittle->readBits(360);
+        $this->byte->read($brLittle, null);
     }
 }
