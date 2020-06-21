@@ -8,20 +8,18 @@ use PhpBinaryReader\BitMask;
 
 class Int8 implements TypeInterface
 {
-    private string $endian = 'C';
+    public string $endian = 'C';
 
     public function read(BinaryReader &$br, int $length = null): int
     {
-        if (($br->getPosition() + 1) > $br->getEofPosition()) {
-            throw new \OutOfBoundsException('Cannot read 32-bit int, it exceeds the boundary of the file');
+        if (!$br->canReadBytes(1)) {
+            throw new \OutOfBoundsException('Cannot read 8-bit int, it exceeds the boundary of the file');
         }
 
-        $segment = substr($br->getInputString(), $br->getPosition(), 1);
+        $segment = $br->readFromHandle(1);
 
-        $data = unpack($this->getEndian(), $segment);
+        $data = unpack($this->endian, $segment);
         $data = $data[1];
-
-        $br->setPosition($br->getPosition() + 1);
 
         if ($br->getCurrentBit() != 0) {
             $data = $this->bitReader($br, $data);
@@ -32,9 +30,9 @@ class Int8 implements TypeInterface
 
     public function readSigned(BinaryReader &$br): int
     {
-        $this->setEndian('c');
+        $this->endian = 'c';
         $value = $this->read($br);
-        $this->setEndian('C');
+        $this->endian = 'C';
 
         return $value;
     }
@@ -49,15 +47,5 @@ class Int8 implements TypeInterface
         $br->setNextByte($data);
 
         return $hiBits | $loBits;
-    }
-
-    public function setEndian(string $endian): void
-    {
-        $this->endian = $endian;
-    }
-
-    public function getEndian(): string
-    {
-        return $this->endian;
     }
 }

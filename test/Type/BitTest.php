@@ -3,96 +3,107 @@ declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
+use PhpBinaryReader\AbstractTestCase;
 use PhpBinaryReader\BinaryReader;
-use PhpBinaryReader\Endian;
-use PhpBinaryReader\Exception\InvalidDataException;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Bit
  */
-class BitTest extends TestCase
+class BitTest extends AbstractTestCase
 {
-    public BinaryReader $brBig;
-    public BinaryReader $brLittle;
-    public Bit $bit;
-
-    public function setUp(): void
+    /** @dataProvider binaryReaders */
+    public function testUnsignedBitReader(BinaryReader $brBig, BinaryReader $brLittle): void
     {
-        $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
-        $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
+        $this->assertEquals(3, $brBig->readUBits(32));
+        $this->assertEquals(3, $brLittle->readUBits(32));
+        $this->assertEquals(2, $brBig->readUBits(16));
+        $this->assertEquals(2, $brLittle->readUBits(16));
+        $this->assertEquals(103, $brBig->readUBits(8));
+        $this->assertEquals(103, $brLittle->readUBits(8));
 
-        $this->bit = new Bit();
-        $this->brBig = new BinaryReader($dataBig, Endian::BIG);
-        $this->brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
+        $brBig->setPosition(0);
+        $brLittle->setPosition(0);
+
+        $brBig->readUBits(28);
+        $brLittle->readUBits(28);
+
+        $this->assertEquals(0, $brBig->readUBits(6));
+        $this->assertEquals(2, $brLittle->readUBits(6));
+        $this->assertEquals(0, $brBig->readUBits(4));
+        $this->assertEquals(0, $brLittle->readUBits(4));
+        $this->assertEquals(0, $brBig->readUBits(2));
+        $this->assertEquals(0, $brLittle->readUBits(2));
+
+        $brBig->readUBits(80);
+        $brLittle->readUBits(80);
+
+        $this->assertEquals(0xF, $brBig->readUBits(4));
+        $this->assertEquals(0xF, $brLittle->readUBits(4));
+        $this->assertEquals(3, $brBig->readUBits(2));
+        $this->assertEquals(3, $brLittle->readUBits(2));
     }
 
-    public function testUnsignedBitReader(): void
+    /** @dataProvider binaryReaders */
+    public function testSignedBitReader(BinaryReader $brBig, BinaryReader $brLittle): void
     {
-        $this->assertEquals(3, $this->brBig->readUBits(32));
-        $this->assertEquals(3, $this->brLittle->readUBits(32));
-        $this->assertEquals(2, $this->brBig->readUBits(16));
-        $this->assertEquals(2, $this->brLittle->readUBits(16));
-        $this->assertEquals(103, $this->brBig->readUBits(8));
-        $this->assertEquals(103, $this->brLittle->readUBits(8));
+        $this->assertEquals(50331648, $brBig->readBits(32));
+        $this->assertEquals(3, $brLittle->readBits(32));
+        $this->assertEquals(512, $brBig->readBits(16));
+        $this->assertEquals(2, $brLittle->readBits(16));
+        $this->assertEquals(103, $brBig->readBits(8));
+        $this->assertEquals(103, $brLittle->readBits(8));
 
-        $this->brBig->setPosition(0);
-        $this->brLittle->setPosition(0);
+        $brBig->setPosition(0);
+        $brLittle->setPosition(0);
 
-        $this->brBig->readUBits(28);
-        $this->brLittle->readUBits(28);
+        $brBig->readBits(28);
+        $brLittle->readBits(28);
 
-        $this->assertEquals(0, $this->brBig->readUBits(6));
-        $this->assertEquals(2, $this->brLittle->readUBits(6));
-        $this->assertEquals(0, $this->brBig->readUBits(4));
-        $this->assertEquals(0, $this->brLittle->readUBits(4));
-        $this->assertEquals(0, $this->brBig->readUBits(2));
-        $this->assertEquals(0, $this->brLittle->readUBits(2));
+        $this->assertEquals(0, $brBig->readBits(6));
+        $this->assertEquals(2, $brLittle->readBits(6));
+        $this->assertEquals(0, $brBig->readBits(4));
+        $this->assertEquals(0, $brLittle->readBits(4));
+        $this->assertEquals(0, $brBig->readBits(2));
+        $this->assertEquals(0, $brLittle->readBits(2));
     }
 
-    public function testSignedBitReader(): void
-    {
-        $this->assertEquals(50331648, $this->brBig->readBits(32));
-        $this->assertEquals(3, $this->brLittle->readBits(32));
-        $this->assertEquals(512, $this->brBig->readBits(16));
-        $this->assertEquals(2, $this->brLittle->readBits(16));
-        $this->assertEquals(103, $this->brBig->readBits(8));
-        $this->assertEquals(103, $this->brLittle->readBits(8));
-
-        $this->brBig->setPosition(0);
-        $this->brLittle->setPosition(0);
-
-        $this->brBig->readBits(28);
-        $this->brLittle->readBits(28);
-
-        $this->assertEquals(0, $this->brBig->readBits(6));
-        $this->assertEquals(2, $this->brLittle->readBits(6));
-        $this->assertEquals(0, $this->brBig->readBits(4));
-        $this->assertEquals(0, $this->brLittle->readBits(4));
-        $this->assertEquals(0, $this->brBig->readBits(2));
-        $this->assertEquals(0, $this->brLittle->readBits(2));
-    }
-
-    public function testExceptionBitsBigEndian(): void
+    /** @dataProvider largeReaders */
+    public function testExceptionBitsBigEndian(BinaryReader $brBig): void
     {
         $this->expectException(\OutOfBoundsException::class);
-        $this->brBig->setPosition(16);
-        $this->brBig->readBits(16);
+        $brBig->setPosition(45);
+        $brBig->readBits(16);
     }
 
-    public function testExceptionBitsLittleEndian(): void
+    /** @dataProvider littleReaders */
+    public function testExceptionBitsLittleEndian(BinaryReader $brLittle): void
+    {
+        $this->expectException(\OutOfBoundsException::class);
+        $brLittle->setPosition(45);
+        $brLittle->readBits(16);
+    }
+
+    /** @dataProvider largeReaders */
+    public function testExceptionBitsOnLastBitsBigEndian(BinaryReader $brBig): void
     {
         $this->expectException(\OutOfBoundsException::class);
 
-        $this->brLittle->setPosition(16);
-        $this->brLittle->readBits(16);
+        $brBig->setPosition(44);
+        $brBig->readBits(4);
+        $brBig->readBits(2);
+        $brBig->readBits(2);
+        $brBig->readBits(1);
     }
 
-    public function testExceptionBitReaderNullRead(): void
+    /** @dataProvider littleReaders */
+    public function testExceptionBitsOnLastBitsLittleEndian(BinaryReader $brLittle): void
     {
-        $this->expectException(InvalidDataException::class);
+        $this->expectException(\OutOfBoundsException::class);
 
-        $this->brLittle->setPosition(16);
-        $this->bit->read($this->brLittle, null);
+        $brLittle->setPosition(44);
+        $brLittle->readBits(4);
+        $brLittle->readBits(2);
+        $brLittle->readBits(2);
+        $brLittle->readBits(1);
     }
 }

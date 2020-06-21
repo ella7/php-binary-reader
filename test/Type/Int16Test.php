@@ -3,101 +3,112 @@ declare(strict_types = 1);
 
 namespace PhpBinaryReader\Type;
 
+use PhpBinaryReader\AbstractTestCase;
 use PhpBinaryReader\BinaryReader;
 use PhpBinaryReader\Endian;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \PhpBinaryReader\Type\Int16
  */
-class Int16Test extends TestCase
+class Int16Test extends AbstractTestCase
 {
-    public BinaryReader $brBig;
-    public BinaryReader $brLittle;
     public Int16 $int16;
 
     public function setUp(): void
     {
-        $dataBig = file_get_contents(__DIR__ . '/../asset/testfile-big.bin');
-        $dataLittle = file_get_contents(__DIR__ . '/../asset/testfile-little.bin');
-
         $this->int16 = new Int16();
-        $this->brBig = new BinaryReader($dataBig, Endian::BIG);
-        $this->brLittle = new BinaryReader($dataLittle, Endian::LITTLE);
     }
 
-    public function testUnsignedReaderWithBigEndian(): void
+    /** @dataProvider largeReaders */
+    public function testUnsignedReaderWithBigEndian(BinaryReader $brBig): void
     {
-        $this->assertEquals(0, $this->int16->read($this->brBig));
-        $this->assertEquals(3, $this->int16->read($this->brBig));
-        $this->assertEquals(2, $this->int16->read($this->brBig));
-        $this->assertEquals(26484, $this->int16->read($this->brBig));
-        $this->assertEquals(25971, $this->int16->read($this->brBig));
-        $this->assertEquals(29729, $this->int16->read($this->brBig));
-        $this->assertEquals(65535, $this->int16->read($this->brBig));
-        $this->assertEquals(65535, $this->int16->read($this->brBig));
+        $this->assertEquals(0, $this->int16->read($brBig));
+        $this->assertEquals(3, $this->int16->read($brBig));
+        $this->assertEquals(2, $this->int16->read($brBig));
+        $this->assertEquals(26484, $this->int16->read($brBig));
+        $this->assertEquals(25971, $this->int16->read($brBig));
+        $this->assertEquals(29729, $this->int16->read($brBig));
+        $this->assertEquals(65535, $this->int16->read($brBig));
+        $this->assertEquals(65535, $this->int16->read($brBig));
     }
 
-    public function testSignedReaderWithBigEndian(): void
+    /** @dataProvider largeReaders */
+    public function testSignedReaderWithBigEndian(BinaryReader $brBig): void
     {
-        $this->brBig->setPosition(12);
-        $this->assertEquals(-1, $this->int16->readSigned($this->brBig));
-        $this->assertEquals(65535, $this->int16->read($this->brBig));
+        $brBig->setPosition(12);
+        $this->assertEquals(-1, $this->int16->readSigned($brBig));
+        $this->assertEquals(65535, $this->int16->read($brBig));
     }
 
-    public function testReaderWithLittleEndian(): void
+    /** @dataProvider littleReaders */
+    public function testReaderWithLittleEndian(BinaryReader $brLittle): void
     {
-        $this->assertEquals(3, $this->int16->read($this->brLittle));
-        $this->assertEquals(0, $this->int16->read($this->brLittle));
-        $this->assertEquals(2, $this->int16->read($this->brLittle));
-        $this->assertEquals(29799, $this->int16->read($this->brLittle));
-        $this->assertEquals(29541, $this->int16->read($this->brLittle));
-        $this->assertEquals(8564, $this->int16->read($this->brLittle));
-        $this->assertEquals(65535, $this->int16->read($this->brLittle));
-        $this->assertEquals(65535, $this->int16->read($this->brLittle));
+        $this->assertEquals(3, $this->int16->read($brLittle));
+        $this->assertEquals(0, $this->int16->read($brLittle));
+        $this->assertEquals(2, $this->int16->read($brLittle));
+        $this->assertEquals(29799, $this->int16->read($brLittle));
+        $this->assertEquals(29541, $this->int16->read($brLittle));
+        $this->assertEquals(8564, $this->int16->read($brLittle));
+        $this->assertEquals(65535, $this->int16->read($brLittle));
+        $this->assertEquals(65535, $this->int16->read($brLittle));
     }
 
-    public function testSignedReaderWithLittleEndian(): void
+    /** @dataProvider littleReaders */
+    public function testSignedReaderWithLittleEndian(BinaryReader $brLittle): void
     {
-        $this->brLittle->setPosition(12);
-        $this->assertEquals(-1, $this->int16->readSigned($this->brLittle));
-        $this->assertEquals(65535, $this->int16->read($this->brLittle));
+        $brLittle->setPosition(12);
+        $this->assertEquals(-1, $this->int16->readSigned($brLittle));
+        $this->assertEquals(65535, $this->int16->read($brLittle));
     }
 
-    public function testBitReaderWithBigEndian(): void
+    /** @dataProvider largeReaders */
+    public function testBitReaderWithBigEndian(BinaryReader $brBig): void
     {
-        $this->brBig->setPosition(6);
-        $this->brBig->readBits(4);
-        $this->assertEquals(1861, $this->int16->read($this->brBig));
+        $brBig->setPosition(6);
+        $brBig->readBits(4);
+        $this->assertEquals(1861, $this->int16->read($brBig));
     }
 
-    public function testBitReaderWithLittleEndian(): void
+    /** @dataProvider littleReaders */
+    public function testBitReaderWithLittleEndian(BinaryReader $brLittle): void
     {
-        $this->brLittle->setPosition(6);
-        $this->brLittle->readBits(4);
-        $this->assertEquals(1876, $this->int16->read($this->brLittle));
+        $brLittle->setPosition(6);
+        $brLittle->readBits(4);
+        $this->assertEquals(1876, $this->int16->read($brLittle));
     }
 
-    public function testOutOfBoundsExceptionIsThrownWithBigEndian(): void
-    {
-        $this->expectException(\OutOfBoundsException::class);
-
-        $this->brBig->readBits(128);
-        $this->int16->read($this->brBig);
-    }
-
-    public function testOutOfBoundsExceptionIsThrownWithLittleEndian(): void
+    /** @dataProvider largeReaders */
+    public function testOutOfBoundsExceptionIsThrownWithBigEndian(BinaryReader $brBig): void
     {
         $this->expectException(\OutOfBoundsException::class);
 
-        $this->brLittle->readBits(128);
-        $this->int16->read($this->brLittle);
+        $brBig->readBits(360);
+        $this->int16->read($brBig);
     }
 
-    public function testAlternateMachineByteOrderSigned(): void
+    /** @dataProvider littleReaders */
+    public function testOutOfBoundsExceptionIsThrownWithLittleEndian(BinaryReader $brLittle)
     {
-        $this->brLittle->setMachineByteOrder(Endian::BIG);
-        $this->brLittle->setEndian(Endian::LITTLE);
-        $this->assertEquals(3, $this->int16->readSigned($this->brLittle));
+        $this->expectException(\OutOfBoundsException::class);
+
+        $brLittle->readBits(360);
+        $this->int16->read($brLittle);
+    }
+
+    /** @dataProvider littleReaders */
+    public function testAlternateMachineByteOrderSigned(BinaryReader $brLittle): void
+    {
+        $brLittle->setMachineByteOrder(Endian::BIG);
+        $brLittle->setEndian(Endian::LITTLE);
+        $this->assertEquals(3, $this->int16->readSigned($brLittle));
+    }
+
+    public function testEndian(): void
+    {
+        $this->int16->endianBig = 'X';
+        $this->assertEquals('X', $this->int16->endianBig);
+
+        $this->int16->endianLittle = 'Y';
+        $this->assertEquals('Y', $this->int16->endianLittle);
     }
 }

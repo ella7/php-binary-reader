@@ -9,22 +9,19 @@ use PhpBinaryReader\Endian;
 
 class Int16 implements TypeInterface
 {
-    private string $endianBig = 'n';
-    private string $endianLittle = 'v';
+    public string $endianBig = 'n';
+    public string $endianLittle = 'v';
 
     public function read(BinaryReader &$br, int $length = null): int
     {
-        if (($br->getPosition() + 2) > $br->getEofPosition()) {
+        if (!$br->canReadBytes(2)) {
             throw new \OutOfBoundsException('Cannot read 16-bit int, it exceeds the boundary of the file');
         }
-
-        $endian = $br->getEndian() == Endian::BIG ? $this->getEndianBig() : $this->getEndianLittle();
-        $segment = substr($br->getInputString(), $br->getPosition(), 2);
+        $endian = $br->getEndian() == Endian::BIG ? $this->endianBig : $this->endianLittle;
+        $segment = $br->readFromHandle(2);
 
         $data = unpack($endian, $segment);
         $data = $data[1];
-
-        $br->setPosition($br->getPosition() + 2);
 
         if ($br->getCurrentBit() != 0) {
             $data = $this->bitReader($br, $data);
@@ -35,13 +32,13 @@ class Int16 implements TypeInterface
 
     public function readSigned(BinaryReader &$br): int
     {
-        $this->setEndianBig('s');
-        $this->setEndianLittle('s');
+        $this->endianBig = 's';
+        $this->endianLittle = 's';
 
         $value = $this->read($br);
 
-        $this->setEndianBig('n');
-        $this->setEndianLittle('v');
+        $this->endianBig = 'n';
+        $this->endianLittle = 'v';
 
         $endian = new Endian();
         if ($br->getMachineByteOrder() != Endian::LITTLE && $br->getEndian() == Endian::LITTLE) {
@@ -62,25 +59,5 @@ class Int16 implements TypeInterface
         $br->setNextByte($data & 0xFF);
 
         return $hiBits | $miBits | $loBits;
-    }
-
-    public function setEndianBig(string $endianBig): void
-    {
-        $this->endianBig = $endianBig;
-    }
-
-    public function getEndianBig(): string
-    {
-        return $this->endianBig;
-    }
-
-    public function setEndianLittle(string $endianLittle): void
-    {
-        $this->endianLittle = $endianLittle;
-    }
-
-    public function getEndianLittle(): string
-    {
-        return $this->endianLittle;
     }
 }

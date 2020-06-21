@@ -9,7 +9,8 @@
     "description": "Lightweight binary reader for PHP",
     "license": "MIT",
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "ext-bcmath": "*"
     },
     "require-dev": {
         "ext-simplexml": "*",

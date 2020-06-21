@@ -9,14 +9,16 @@ use PhpBinaryReader\Type\Byte;
 use PhpBinaryReader\Type\Int8;
 use PhpBinaryReader\Type\Int16;
 use PhpBinaryReader\Type\Int32;
+use PhpBinaryReader\Type\Int64;
+use PhpBinaryReader\Type\Single;
 use PhpBinaryReader\Type\Str;
 
 class BinaryReader
 {
     private int $machineByteOrder = Endian::LITTLE;
-    private string $inputString;
     private int $currentBit;
 
+    private $inputHandle;
     private $nextByte;
 
     private int $position;
@@ -26,34 +28,50 @@ class BinaryReader
     public Byte $byteReader;
     public Bit $bitReader;
     public Str $stringReader;
+    public Single $singleReader;
     public Int8 $int8Reader;
     public Int16 $int16Reader;
     public Int32 $int32Reader;
+    public Int64 $int64Reader;
 
-    public function __construct(string $str, $endian = Endian::LITTLE)
+    /**
+     * @param  string|resource           $input
+     * @param  int|string                $endian
+     * @throws \InvalidArgumentException
+     */
+    public function __construct($input, $endian = Endian::LITTLE)
     {
-        $this->bitReader = new Bit();
-        $this->byteReader = new Byte();
-        $this->stringReader = new Str();
-        $this->int8Reader = new Int8();
-        $this->int16Reader = new Int16();
-        $this->int32Reader = new Int32();
+        if (!is_resource($input)) {
+            $this->setInputString($input);
+        } else {
+            $this->setInputHandle($input);
+        }
 
-        $this->eofPosition = strlen($str);
+        $this->eofPosition = fstat($this->getInputHandle())['size'];
 
         $this->setEndian($endian);
-        $this->setInputString($str);
         $this->setNextByte(false);
         $this->setCurrentBit(0);
         $this->setPosition(0);
+
+        $this->bitReader = new Bit();
+        $this->stringReader = new Str();
+        $this->byteReader = new Byte();
+        $this->int8Reader = new Int8();
+        $this->int16Reader = new Int16();
+        $this->int32Reader = new Int32();
+        $this->int64Reader = new Int64();
+        $this->singleReader = new Single();
     }
 
     public function isEof(): bool
     {
-        if ($this->getPosition() >= $this->getEofPosition()) {
-            return true;
-        }
-        return false;
+        return $this->position >= $this->eofPosition;
+    }
+
+    public function canReadBytes(float $length = 0): bool
+    {
+        return $this->position + $length <= $this->eofPosition;
     }
 
     public function align(): void
@@ -107,6 +125,21 @@ class BinaryReader
         return $this->int32Reader->read($this);
     }
 
+    public function readInt64(): string
+    {
+        return $this->int64Reader->readSigned($this);
+    }
+
+    public function readUInt64(): string
+    {
+        return $this->int64Reader->read($this);
+    }
+
+    public function readSingle(): float
+    {
+        return $this->singleReader->read($this);
+    }
+
     public function readString(int $length): string
     {
         return $this->stringReader->read($this, $length);
@@ -129,16 +162,35 @@ class BinaryReader
         return $this->machineByteOrder;
     }
 
+    public function setInputHandle($inputHandle)
+    {
+        $this->inputHandle = $inputHandle;
+
+        return $this;
+    }
+
+    public function getInputHandle()
+    {
+        return $this->inputHandle;
+    }
+
     public function setInputString(string $inputString): self
     {
-        $this->inputString = $inputString;
+        $handle = fopen('php://memory', 'br+');
+        fwrite($handle, $inputString);
+        rewind($handle);
+        $this->inputHandle = $handle;
 
         return $this;
     }
 
     public function getInputString(): string
     {
-        return $this->inputString;
+        $handle = $this->getInputHandle();
+        $str = stream_get_contents($handle);
+        rewind($handle);
+
+        return $str;
     }
 
     public function setNextByte($nextByte): self
@@ -156,6 +208,7 @@ class BinaryReader
     public function setPosition(int $position): self
     {
         $this->position = $position;
+        fseek($this->getInputHandle(), $position);
 
         return $this;
     }
@@ -198,5 +251,11 @@ class BinaryReader
     public function getCurrentBit(): int
     {
         return $this->currentBit;
+    }
+
+    public function readFromHandle(int $length): string
+    {
+        $this->position += $length;
+        return fread($this->inputHandle, $length);
     }
 }

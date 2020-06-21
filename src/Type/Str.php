@@ -14,14 +14,11 @@ class Str implements TypeInterface
             throw new InvalidDataException('The length parameter must be an integer');
         }
 
-        if (($length + $br->getPosition()) > $br->getEofPosition()) {
+        if (!$br->canReadBytes($length)) {
             throw new \OutOfBoundsException('Cannot read string, it exceeds the boundary of the file');
         }
 
-        $str = substr($br->getInputString(), $br->getPosition(), $length);
-        $br->setPosition($br->getPosition() + $length);
-
-        return $str;
+        return $br->readFromHandle($length);
     }
 
     public function readAligned(BinaryReader &$br, int $length): string

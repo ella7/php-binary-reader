@@ -17,10 +17,6 @@ class Bit implements TypeInterface
             throw new InvalidDataException('The length parameter must be an integer');
         }
 
-        if (($length / 8) + $br->getPosition() > $br->getEofPosition()) {
-            throw new \OutOfBoundsException('Cannot read bits, it exceeds the boundary of the file');
-        }
-
         $bitmask = new BitMask();
         $result = 0;
         $bits = $length;
@@ -41,6 +37,10 @@ class Bit implements TypeInterface
 
                 return $br->getNextByte() >> $shift;
             }
+        }
+
+        if (!$br->canReadBytes($length / 8)) {
+            throw new \OutOfBoundsException('Cannot read bits, it exceeds the boundary of the file');
         }
 
         if ($bits >= 8) {
@@ -65,9 +65,8 @@ class Bit implements TypeInterface
 
         if ($bits != 0) {
             $code = $this->getSigned() ? 'c' : 'C';
-            $data = unpack($code, substr($br->getInputString(), $br->getPosition(), 1));
+            $data = unpack($code, $br->readFromHandle(1));
             $br->setNextByte($data[1]);
-            $br->setPosition($br->getPosition() + 1);
             $result |= $br->getNextByte() & $bitmask->getMask($bits, BitMask::MASK_LO);
         }
 

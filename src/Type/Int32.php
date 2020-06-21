@@ -9,22 +9,20 @@ use PhpBinaryReader\Endian;
 
 class Int32 implements TypeInterface
 {
-    private string $endianBig = 'N';
-    private string $endianLittle = 'V';
+    public string $endianBig = 'N';
+    public string $endianLittle = 'V';
 
     public function read(BinaryReader &$br, int $length = null): int
     {
-        if (($br->getPosition() + 4) > $br->getEofPosition()) {
+        if (!$br->canReadBytes(4)) {
             throw new \OutOfBoundsException('Cannot read 32-bit int, it exceeds the boundary of the file');
         }
 
-        $endian = $br->getEndian() == Endian::BIG ? $this->getEndianBig() : $this->getEndianLittle();
-        $segment = substr($br->getInputString(), $br->getPosition(), 4);
+        $endian = $br->getEndian() == Endian::BIG ? $this->endianBig : $this->endianLittle;
+        $segment = $br->readFromHandle(4);
 
         $data = unpack($endian, $segment);
         $data = $data[1];
-
-        $br->setPosition($br->getPosition() + 4);
 
         if ($br->getCurrentBit() != 0) {
             $data = $this->bitReader($br, $data);
@@ -35,17 +33,16 @@ class Int32 implements TypeInterface
 
     public function readSigned(BinaryReader &$br): int
     {
-        $this->setEndianBig('l');
-        $this->setEndianLittle('l');
+        $this->endianBig = 'l';
+        $this->endianLittle = 'l';
 
         $value = $this->read($br);
 
-        $this->setEndianBig('N');
-        $this->setEndianLittle('V');
+        $this->endianBig = 'N';
+        $this->endianLittle = 'V';
 
         if ($br->getMachineByteOrder() != Endian::LITTLE && $br->getEndian() == Endian::LITTLE) {
             $endian = new Endian();
-
             return $endian->convert($value);
         } else {
             return $value;
@@ -63,25 +60,5 @@ class Int32 implements TypeInterface
         $br->setNextByte($data & 0xFF);
 
         return $hiBits | $miBits | $loBits;
-    }
-
-    public function setEndianBig(string $endianBig): void
-    {
-        $this->endianBig = $endianBig;
-    }
-
-    public function getEndianBig(): string
-    {
-        return $this->endianBig;
-    }
-
-    public function setEndianLittle(string $endianLittle): void
-    {
-        $this->endianLittle = $endianLittle;
-    }
-
-    public function getEndianLittle(): string
-    {
-        return $this->endianLittle;
     }
 }
