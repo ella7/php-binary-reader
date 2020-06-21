@@ -11,7 +11,7 @@ use PhpBinaryReader\Exception\InvalidDataException;
 class BinaryReaderTest extends AbstractTestCase
 {
     /** @dataProvider binaryReaders */
-    public function testEof($brBig, $brLittle): void
+    public function testEof(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->setPosition(44);
         $this->assertFalse($brBig->isEof());
@@ -25,7 +25,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testCanReadBytes($brBig, $brLittle): void
+    public function testCanReadBytes(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->setPosition(44);
         $this->assertTrue($brBig->canReadBytes());
@@ -39,7 +39,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testBitReader($brBig, $brLittle): void
+    public function testBitReader(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $this->assertEquals(50331648, $brBig->readBits(32));
         $this->assertEquals(3, $brLittle->readBits(32));
@@ -52,7 +52,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testInt8($brBig, $brLittle): void
+    public function testInt8(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brLittle->setPosition(6);
         $brBig->setPosition(6);
@@ -84,7 +84,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testInt32($brBig, $brLittle): void
+    public function testInt32(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $this->assertEquals(50331648, $brBig->readInt32());
         $this->assertEquals(3, $brLittle->readInt32());
@@ -97,7 +97,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testInt64($brBig, $brLittle): void
+    public function testInt64(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $this->assertEquals(12885059444, $brBig->readInt64());
         $this->assertEquals(8387672839590772739, $brLittle->readInt64());
@@ -123,7 +123,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testAlign($brBig, $brLittle): void
+    public function testAlign(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->readBits(30);
         $brLittle->readBits(30);
@@ -140,7 +140,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testBytes($brBig, $brLittle): void
+    public function testBytes(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->setPosition(7);
         $brLittle->setPosition(7);
@@ -150,7 +150,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testString($brBig, $brLittle): void
+    public function testString(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->setPosition(7);
         $brLittle->setPosition(7);
@@ -160,7 +160,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testAlignedString($brBig, $brLittle): void
+    public function testAlignedString(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->setPosition(6);
         $brLittle->setPosition(6);
@@ -173,7 +173,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testEndianSet($brBig, $brLittle): void
+    public function testEndianSet(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->setEndian(Endian::LITTLE);
         $brLittle->setEndian(Endian::BIG);
@@ -182,30 +182,30 @@ class BinaryReaderTest extends AbstractTestCase
         $this->assertEquals(Endian::BIG, $brLittle->getEndian());
     }
 
-    /** @dataProvider binaryReaders */
-    public function testExceptionIsThrownIfInvalidEndianSet($brBig, $brLittle): void
+    /** @dataProvider largeReaders */
+    public function testExceptionIsThrownIfInvalidEndianSet(BinaryReader $brBig): void
     {
         $this->expectException(InvalidDataException::class);
 
         $brBig->setEndian(12390123);
     }
 
-    /** @dataProvider binaryReaders */
-    public function testPositionSet($brBig, $brLittle): void
+    /** @dataProvider largeReaders */
+    public function testPositionSet(BinaryReader $brBig): void
     {
         $brBig->setPosition(5);
         $this->assertEquals(5, $brBig->getPosition());
     }
 
     /** @dataProvider binaryReaders */
-    public function testEofPosition($brBig, $brLittle): void
+    public function testEofPosition(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $this->assertEquals(45, $brBig->getEofPosition());
         $this->assertEquals(45, $brLittle->getEofPosition());
     }
 
     /** @dataProvider binaryReaders */
-    public function testNextByte($brBig, $brLittle): void
+    public function testNextByte(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $brBig->readBits(70);
         $brLittle->readBits(70);
@@ -221,7 +221,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testCurrentBit($brBig, $brLittle): void
+    public function testCurrentBit(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $this->assertEquals(0, $brBig->getCurrentBit());
         $this->assertEquals(0, $brLittle->getCurrentBit());
@@ -239,15 +239,15 @@ class BinaryReaderTest extends AbstractTestCase
         $this->assertEquals(7, $brLittle->getCurrentBit());
     }
 
-    /** @dataProvider binaryReaders */
-    public function testInputString($brBig, $brLittle): void
+    /** @dataProvider largeReaders */
+    public function testInputString(BinaryReader $brBig): void
     {
         $brBig->setInputString('foo');
         $this->assertEquals('foo', $brBig->getInputString());
     }
 
-    /** @dataProvider binaryReaders */
-    public function testInputHandle($brBig, $brLittle): void
+    /** @dataProvider largeReaders */
+    public function testInputHandle(BinaryReader $brBig): void
     {
         // Create a handle in-memory
         $handle = fopen('php://memory', 'r+');
@@ -258,8 +258,8 @@ class BinaryReaderTest extends AbstractTestCase
         $this->assertEquals($handle, $brBig->getInputHandle());
     }
 
-    /** @dataProvider binaryReaders */
-    public function testMachineByteOrder($brBig, $brLittle): void
+    /** @dataProvider largeReaders */
+    public function testMachineByteOrder(BinaryReader $brBig): void
     {
         $this->assertEquals(Endian::LITTLE, $brBig->getMachineByteOrder());
         $brBig->setMachineByteOrder(Endian::BIG);
@@ -267,7 +267,7 @@ class BinaryReaderTest extends AbstractTestCase
     }
 
     /** @dataProvider binaryReaders */
-    public function testReadFromHandle($brBig, $brLittle): void
+    public function testReadFromHandle(BinaryReader $brBig, BinaryReader $brLittle): void
     {
         $this->assertEquals('03000000', bin2hex($brLittle->readFromHandle(4)));
         $this->assertEquals(4, $brLittle->getPosition());
