@@ -33,6 +33,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run code style suite
+        if: matrix.os != 'windows-latest'
         run: ./vendor/bin/phpcs --standard=PSR2 -s -p src/ test/
 
       - name: Run test suite
