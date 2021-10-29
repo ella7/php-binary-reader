@@ -6,7 +6,7 @@ namespace PhpBinaryReader;
 class Endian
 {
     public const BIG = 1;
-    public const LITTLE = 2;
+    public const LITTLE = 0;
 
     public function convert(int $value)
     {
