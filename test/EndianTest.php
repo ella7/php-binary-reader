@@ -13,9 +13,9 @@ class EndianTest extends TestCase
     public function testConstants(): void
     {
         $this->assertEquals(1, Endian::BIG);
-        $this->assertEquals(2, Endian::LITTLE);
+        $this->assertEquals(0, Endian::LITTLE);
         $this->assertEquals(1, Endian::BIG);
-        $this->assertEquals(2, Endian::LITTLE);
+        $this->assertEquals(0, Endian::LITTLE);
     }
 
     public function testConvertDoesNothingIfSingleDigit(): void
